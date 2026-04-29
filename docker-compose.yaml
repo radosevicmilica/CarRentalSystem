@@ -1,0 +1,60 @@
+services:
+  eureka-server:
+    image: rzk/eureka-server:0.1
+    ports:
+      - "8761:8761"
+    networks:
+      - rzk-network
+
+  vehicle-service:
+    image: rzk/vehicle-service:0.1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - rzk-network
+
+  user-service:
+    image: rzk/user-service:0.1
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+    networks:
+      - rzk-network
+
+  rental-service:
+    image: rzk/rental-service:0.1
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+    networks:
+      - rzk-network
+
+  billing-service:
+    image: rzk/billing-service:0.1
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+    networks:
+      - rzk-network
+
+  api-gateway:
+    image: rzk/api-gateway:0.1
+    ports:
+      - "8765:8765"
+    depends_on:
+      - eureka-server
+      - billing-service
+      - user-service
+      - vehicle-service
+      - rental-service
+    networks:
+      - rzk-network
+
+
+networks:
+  rzk-network:

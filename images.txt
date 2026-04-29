@@ -1,0 +1,6 @@
+eureka-server: https://hub.docker.com/r/radosevicmilica/eureka-server 
+api-gateway: https://hub.docker.com/r/radosevicmilica/api-gateway
+vehicle-service: https://hub.docker.com/r/radosevicmilica/vehicle-service
+rental-service: https://hub.docker.com/r/radosevicmilica/rental-service
+billing-service: https://hub.docker.com/r/radosevicmilica/billing-service
+user-service: https://hub.docker.com/r/radosevicmilica/user-service
