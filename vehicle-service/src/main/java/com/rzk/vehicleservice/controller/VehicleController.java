@@ -22,6 +22,24 @@ public class VehicleController {
 
     private final VehicleService service;
 
+    @PostMapping("/{vehicleId}/images")
+    public ResponseEntity<VehicleImage> uploadImage(
+            @PathVariable Long vehicleId,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        return new ResponseEntity<>(service.uploadImage(vehicleId, file), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{vehicleId}/images")
+    public ResponseEntity<List<VehicleImage>> getImages(@PathVariable Long vehicleId) {
+        return ResponseEntity.ok(service.getImagesForVehicle(vehicleId));
+    }
+
+    @DeleteMapping("/images/{imageId}")
+    public ResponseEntity<Void> deleteImage(@PathVariable Long imageId) {
+        service.deleteImage(imageId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping()
     public ResponseEntity<List<Vehicle>> getAllVehicles(){
         return new ResponseEntity<>(service.getAll(), HttpStatus.OK) ;
