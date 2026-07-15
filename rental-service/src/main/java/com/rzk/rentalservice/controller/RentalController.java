@@ -5,8 +5,6 @@ import com.rzk.rentalservice.model.Penalty;
 import com.rzk.rentalservice.model.Rental;
 import com.rzk.rentalservice.model.RentalPeriod;
 import com.rzk.rentalservice.service.RentalService;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,15 +33,15 @@ public class RentalController {
 //}
 //    http://localhost:8765/rentals?idUser=2&idVehicle=2
     @PostMapping
-    @RateLimiter(name = "rentalsServiceRateLimiter", fallbackMethod = "rentalServiceFallback")
+//    @RateLimiter(name = "rentalsServiceRateLimiter", fallbackMethod = "rentalServiceFallback")
     public ResponseEntity<Rental> createRental(@Valid @RequestBody Rental rental,
                                @RequestParam Long idUser, @RequestParam Long idVehicle){
         return new ResponseEntity<>(service.createRental(rental, idUser, idVehicle), HttpStatus.CREATED) ;
     }
 
-    public ResponseEntity<Rental> rentalServiceFallback(RequestNotPermitted ex) {
-        return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
-    }
+//    public ResponseEntity<Rental> rentalServiceFallback(RequestNotPermitted ex) {
+//        return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
+//    }
 
     //http://localhost:8765/rentals/1
     @GetMapping("/{id}")
@@ -94,4 +92,8 @@ public class RentalController {
         return new ResponseEntity<>(service.extendRental(rentalId, extraDays), HttpStatus.OK);
     }
 
+    @PatchMapping("/{rentalId}/cancel")
+    public ResponseEntity<Rental> cancelRental(@PathVariable Long rentalId){
+        return new ResponseEntity<>(service.cancelRental(rentalId), HttpStatus.OK);
+    }
 }

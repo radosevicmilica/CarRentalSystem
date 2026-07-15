@@ -10,12 +10,19 @@ import com.rzk.userservice.proxy.BillingClient;
 import com.rzk.userservice.proxy.RentalClient;
 import com.rzk.userservice.repository.RoleRepository;
 import com.rzk.userservice.repository.UserRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +33,38 @@ public class UserService {
 
     private final RentalClient rentalClient;
     private final BillingClient billingClient;
+
+    //za token
+    private final java.security.Key jwtKey = Keys.hmacShaKeyFor("mojUltraTajniKljucKojiMoraBitiJakoDugacak1234567890".getBytes(StandardCharsets.UTF_8));
+
+    public String login(LoginRequest loginRequest) {
+        // 1. Pronađi korisnika preko email-a (obrati pažnju na zagrade ovde)
+        User user = ur.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new EntityDoesNotExistException("Pogrešan email ili lozinka!"));
+
+        // 2. Proveri lozinku
+        if (!user.getPassword().equals(loginRequest.getPassword())) {
+            throw new EntityDoesNotExistException("Pogrešan email ili lozinka!");
+        }
+
+        // 3. Izvuci sve uloge korisnika i spoji ih u jedan string odvojen zarezima (npr. "ROLE_USER,ROLE_ADMIN")
+        String rolesClaims = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.joining(","));
+
+        // 4. Generiši JWT Token
+        long trajanjeTokenaUMilisekundama = 86400000; // 24 sata
+
+        return Jwts.builder()
+                .setSubject(user.getEmail()) // Glavni identifikator (sub)
+                .claim("userId", user.getId()) // Dodajemo ID korisnika u token
+                .claim("roles", rolesClaims)  // Dodajemo njegove uloge u token
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + trajanjeTokenaUMilisekundama))
+                .signWith(jwtKey) // Potpisujemo token našim ključem
+                .compact();
+    }
+
 
     public List<User> getAllUsers() {
         return ur.findAll();
@@ -119,6 +158,10 @@ public class UserService {
         profile.setRentals(result);
 
         return profile;
+    }
+
+    public User getUserByEmail(String email){
+        return ur.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
 

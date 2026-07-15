@@ -1,5 +1,6 @@
 package com.rzk.userservice.controller;
 
+import com.rzk.userservice.dto.LoginRequest;
 import com.rzk.userservice.dto.UserFullProfile;
 import com.rzk.userservice.model.Role;
 import com.rzk.userservice.model.User;
@@ -91,4 +92,15 @@ public class UserController {
         return new ResponseEntity<>(service.getFullProfile(id), HttpStatus.OK);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid LoginRequest loginRequest) {
+        String token = service.login(loginRequest);
+        // Vraćamo čist token nazad frontu (Angularu)
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    @GetMapping("/byEmail")
+    public ResponseEntity<User> getUserByEmail(@RequestParam String email){
+        return new ResponseEntity<>(service.getUserByEmail(email), HttpStatus.OK);
+    }
 }

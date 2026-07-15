@@ -45,9 +45,16 @@ public class BillingService {
         List<BillItem> items = new ArrayList<>();
 
         // base price
+//        BillItem base = new BillItem();
+//        base.setDescription("Base rental price");
+//        base.setAmount(rental.getBasePrice());
+//        base.setBill(bill);
+//        items.add(base);
+
         BillItem base = new BillItem();
-        base.setDescription("Base rental price");
-        base.setAmount(rental.getBasePrice());
+        int brojDana = rental.getRentalPeriods() != null ? rental.getRentalPeriods().size() : 1;
+        base.setDescription("Base rental price (" + brojDana + " days × " + rental.getBasePrice() + " EUR)");
+        base.setAmount(rental.getBasePrice() * brojDana);
         base.setBill(bill);
         items.add(base);
 

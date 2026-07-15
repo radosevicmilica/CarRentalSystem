@@ -157,4 +157,19 @@ public class RentalService {
         rr.save(rental);
         return addedPeriods;
     }
+
+    public Rental cancelRental(Long rentalId) {
+        Rental rental = getRentalById(rentalId);
+
+        if (!"ACTIVE".equals(rental.getStatus())) {
+            throw new IllegalStateException("Only active rentals can be cancelled");
+        }
+
+        rental.setStatus("CANCELLED");
+        Rental savedRental = rr.save(rental);
+
+        vehicleClient.updateStatus(rental.getVehicleId(), "AVAILABLE");
+
+        return savedRental;
+    }
 }

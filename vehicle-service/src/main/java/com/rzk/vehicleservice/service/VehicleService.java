@@ -3,17 +3,28 @@ package com.rzk.vehicleservice.service;
 import com.rzk.vehicleservice.exceptions.EntityAlreadyExistsException;
 import com.rzk.vehicleservice.exceptions.EntityDoesNotExistException;
 import com.rzk.vehicleservice.model.Vehicle;
+import com.rzk.vehicleservice.model.VehicleImage;
 import com.rzk.vehicleservice.model.VehicleStatusHistory;
+import com.rzk.vehicleservice.repository.VehicleImageRepository;
 import com.rzk.vehicleservice.repository.VehicleRepository;
 import com.rzk.vehicleservice.repository.VehicleStatusHistoryRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class VehicleService {
 
     private final VehicleRepository vr;
@@ -22,7 +33,7 @@ public class VehicleService {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Value("${file.upload-dir}")
-    public String uploadDir;
+    private String uploadDir;
 
     public List<VehicleImage> getImagesForVehicle(Long vehicleId) {
         return vir.findByVehicleId(vehicleId);

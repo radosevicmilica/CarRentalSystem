@@ -2,6 +2,7 @@ package com.rzk.vehicleservice.controller;
 
 
 import com.rzk.vehicleservice.model.Vehicle;
+import com.rzk.vehicleservice.model.VehicleImage;
 import com.rzk.vehicleservice.model.VehicleStatusHistory;
 import com.rzk.vehicleservice.service.VehicleService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
