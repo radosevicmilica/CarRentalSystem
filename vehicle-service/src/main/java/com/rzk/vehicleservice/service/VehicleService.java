@@ -64,4 +64,13 @@ public class VehicleService {
     public List<VehicleStatusHistory> getStatusHistory(Long vehicleId){
         return hr.findByVehicleIdOrderByChangedAtDesc(vehicleId);
     }
+
+    public List<Vehicle> getAll() {
+        return vr.findAll();
+    }
+
+    public void deleteVehicle(Long id) {
+        Vehicle vehicle = vr.findById(id).orElseThrow(() -> new EntityDoesNotExistException("Vehicle with id " + id + " not found"));
+        vr.delete(vehicle);
+    }
 }
