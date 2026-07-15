@@ -22,6 +22,16 @@ public class VehicleController {
 
     private final VehicleService service;
 
+    @GetMapping()
+    public ResponseEntity<List<Vehicle>> getAllVehicles(){
+        return new ResponseEntity<>(service.getAll(), HttpStatus.OK) ;
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public void deleteVehicle(@PathVariable Long id){
+        service.deleteVehicle(id) ;
+    }
+
 //    {
 //      "brand": "Toyota",
 //      "model": "Corolla",
