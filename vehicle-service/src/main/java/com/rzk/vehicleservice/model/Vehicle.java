@@ -40,4 +40,7 @@ public class Vehicle {
     @Column(nullable = false)
     @NotBlank
     private String currentStatus; //available, rented
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VehicleImage> images = new ArrayList<>();
 }
