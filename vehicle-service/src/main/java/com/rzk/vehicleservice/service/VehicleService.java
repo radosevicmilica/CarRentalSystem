@@ -18,6 +18,66 @@ public class VehicleService {
 
     private final VehicleRepository vr;
     private final VehicleStatusHistoryRepository hr;
+    private final VehicleImageRepository vir;
+
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Value("${file.upload-dir}")
+    public String uploadDir;
+
+    public List<VehicleImage> getImagesForVehicle(Long vehicleId) {
+        return vir.findByVehicleId(vehicleId);
+    }
+
+    public VehicleImage uploadImage(Long vehicleId, MultipartFile file) throws IOException {
+        Vehicle vehicle = vr.findById(vehicleId)
+                .orElseThrow(() -> new EntityDoesNotExistException("Vehicle with id " + vehicleId + " not found"));
+
+        Files.createDirectories(Paths.get(uploadDir));
+
+        String original = file.getOriginalFilename();
+        String extension = (original != null && original.contains("."))
+                ? original.substring(original.lastIndexOf("."))
+                : "";
+        String fileName = UUID.randomUUID() + extension;
+
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.write(filePath, file.getBytes());
+
+        boolean noImagesYet = vir.findByVehicleId(vehicleId).isEmpty();
+
+        VehicleImage image = new VehicleImage();
+        image.setVehicle(vehicle);
+        image.setImageUrl("/uploads/vehicles/" + fileName);
+        image.setIsMain(noImagesYet); // prva slika automatski postaje glavna
+        image.setUploadedAt(Instant.now());
+
+        return vir.save(image);
+    }
+
+    public void deleteImage(Long imageId) {
+        VehicleImage image = vir.findById(imageId)
+                .orElseThrow(() -> new EntityDoesNotExistException("Image with id " + imageId + " not found"));
+
+        try {
+            String fileName = Paths.get(image.getImageUrl()).getFileName().toString();
+            Files.deleteIfExists(Paths.get(uploadDir, fileName));
+        } catch (IOException e) {
+            // slika se briše iz baze i ako fizičko brisanje ne uspe
+        }
+
+        boolean wasMain = image.getIsMain();
+        Long vehicleId = image.getVehicle().getId();
+        vir.delete(image);
+
+        if (wasMain) {
+            List<VehicleImage> remaining = vir.findByVehicleId(vehicleId);
+            if (!remaining.isEmpty()) {
+                VehicleImage newMain = remaining.get(0);
+                newMain.setIsMain(true);
+                vir.save(newMain);
+            }
+        }
+    }
 
     public Vehicle save(Vehicle vehicle){
         vr.findByBrandAndModelAndVehicleType(vehicle.getBrand(), vehicle.getModel(), vehicle.getVehicleType())
