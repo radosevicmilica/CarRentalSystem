@@ -51,6 +51,9 @@ public class AuthenticationFilter implements GlobalFilter {
         String path = exchange.getRequest().getURI().getPath();
         String method = exchange.getRequest().getMethod().name();
 
+        if (path.startsWith("/uploads/vehicles/")) {
+            return chain.filter(exchange);
+        }
         // 1. Ako je ruta javna ILI ako je u pitanju registracija novog korisnika (POST na /api/users), pusti zahtev
         if (publicEndpoints.contains(path) || (path.equals("/api/users") && method.equals("POST"))) {
             return chain.filter(exchange);
