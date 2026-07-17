@@ -54,7 +54,15 @@ public class AuthenticationFilter implements GlobalFilter {
         if (path.startsWith("/uploads/vehicles/")) {
             return chain.filter(exchange);
         }
-        if (publicEndpoints.contains(path) || (path.equals("/api/users") && method.equals("POST"))) {
+//        if (publicEndpoints.contains(path) || (path.equals("/api/users") && method.equals("POST"))) {
+//            return chain.filter(exchange);
+//        }
+        boolean isPublicVehicleGet = path.startsWith("/vehicles") && method.equals("GET");
+
+        boolean isOtherPublic = publicEndpoints.contains(path)
+                || (path.equals("/api/users") && method.equals("POST"));
+
+        if (isPublicVehicleGet || isOtherPublic) {
             return chain.filter(exchange);
         }
 
