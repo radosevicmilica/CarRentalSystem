@@ -54,15 +54,12 @@ public class AuthenticationFilter implements GlobalFilter {
         if (path.startsWith("/uploads/vehicles/")) {
             return chain.filter(exchange);
         }
-        // 1. Ako je ruta javna ILI ako je u pitanju registracija novog korisnika (POST na /api/users), pusti zahtev
         if (publicEndpoints.contains(path) || (path.equals("/api/users") && method.equals("POST"))) {
             return chain.filter(exchange);
         }
 
-        // 2. Izvuci Authorization header
         String authHeader = exchange.getRequest().getHeaders().getFirst(org.springframework.http.HttpHeaders.AUTHORIZATION);
 
-        // 3. Proveri da li uopšte postoji i da li počinje sa "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             logger.warn("Fali ili je neispravan Authorization header za putanju: {}", path);
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -72,19 +69,16 @@ public class AuthenticationFilter implements GlobalFilter {
         String token = authHeader.substring(7); // Preskačemo tekst "Bearer " da dobijemo čist token
 
         try {
-            // MOVEREN KLJUČ OVDE: Pravimo ga dinamički tek kada zahtev prođe prve provere
             java.security.Key dynamicKey = io.jsonwebtoken.security.Keys.hmacShaKeyFor(
                     "mojUltraTajniKljucKojiMoraBitiJakoDugacak1234567890".getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
 
-            // 4. Validacija i čitanje tokena
             Claims claims = Jwts.parser()
                     .verifyWith((javax.crypto.SecretKey) dynamicKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
 
-            // 5. Izvuci uloge iz tokena i prosledi ih u unutrašnje mikroservise kroz novi header
             String roles = claims.get("roles", String.class);
             exchange = exchange.mutate()
                     .request(exchange.getRequest().mutate().header("X-User-Roles", roles).build())
