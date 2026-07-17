@@ -59,6 +59,8 @@ public class GatewayConfig {
 
                 .route("vehicle-service", r -> r.path("/vehicles/**")
                         .uri("lb://vehicle-service"))
+                .route("vehicle-service-uploads", r -> r.path("/uploads/vehicles/**")
+                        .uri("lb://vehicle-service"))
                 .build();
     }
 }
