@@ -41,7 +41,7 @@ import org.springframework.context.annotation.Configuration;
 public class GatewayConfig {
 
     @Bean
-    public RouteLocator coffeeRoutes(RouteLocatorBuilder builder) {
+    public RouteLocator carRouters(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("home", r -> r
                         .path("/home")
